@@ -8,10 +8,9 @@ def thinningSS(file, max_strain=10, interval=0.1):
         'rlt': path(relative) of xxx_rlt.csv file
         'set': path(relative) of xxx_set.csv file
     '''
-    import numpy as np
     import pandas as pd
-    import os
-
+    import numpy as np
+    
     # read files and parameters
     data = pd.read_csv(file['crv'], sep=',', encoding='shift_jis', skiprows=1, index_col=0)
     data_rlt = pd.read_csv(file['rlt'], sep=',', encoding='shift_jis')
@@ -31,7 +30,8 @@ def thinningSS(file, max_strain=10, interval=0.1):
     data['stress'] = data['N'] * 3 * L / (2 * b * h * h)
     
     #%% data thinnings
-    marker = pd.DataFrame({'strain': np.arange(0, max_strain, interval), 'marker': True})
+    interval_steps = int(max_strain/interval)
+    marker = pd.DataFrame({'strain': np.round(np.linspace(0, max_strain, interval_steps, endpoint=False), 2), 'marker': True})
     data_marked = pd.merge(data, marker, on='strain', how='outer')
     data_marked.rename(data_marked['strain'], inplace=True)
     data_marked.sort_values(by=['strain'], inplace=True)
