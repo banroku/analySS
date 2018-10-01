@@ -42,3 +42,30 @@ def thinningSS(file, max_strain=10, interval=0.1):
     thinnedSS.name = file['name']
     
     return thinnedSS
+
+
+#%%
+def parameters(file):
+    '''a function to pick following parameters as pd.Series: 
+    parameters = ['width', 'height', 'FM', 'FS_max', 'FS_break', 'FE_max', 'FE_break', 
+              'd_width', 'd_height', 'd_FM', 'd_FS_max', 'd_FS_break', 'd_FE_max', 'd_FE_break']
+    FILE should be passed as dictionary containing following: 
+        'name': name of sample like 'RL7785'
+        'crv': path(relative) of xxx_crv.csv file
+        'rlt': path(relative) of xxx_rlt.csv file
+        'set': path(relative) of xxx_set.csv file '''
+
+    file_rlt = file['rlt']
+    data_rlt = pd.read_csv(file_rlt, sep=',', skiprows=[1,2], index_col=0, encoding='shift_jis')
+    parameters = ['幅', '厚さ', '弾性率', '最大点', '破壊点', '最大点.1', '破壊点.1']
+    data_rlt = data_rlt.loc[['単純平均', '標準偏差'], parameters]
+    data_rlt.index = ['average', 'stdev']
+    data_rlt.columns = ['width', 'height', 'FM', 'FS_max', 'FS_break', 'FE_max', 'FE_break']
+    data_rlt = data_rlt.values
+    data_flattened = [item for sublist in data_rlt for item in sublist] #see below
+    parameters = ['width', 'height', 'FM', 'FS_max', 'FS_break', 'FE_max', 'FE_break', 
+                  'd_width', 'd_height', 'd_FM', 'd_FS_max', 'd_FS_break', 'd_FE_max', 'd_FE_break']
+    data_rlt = pd.Series(data_flattened, index=parameters) 
+    data_rlt.name = file['name']
+    
+    return data_rlt
